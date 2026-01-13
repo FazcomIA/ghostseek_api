@@ -159,7 +159,75 @@ async function sendMessage(prompt, options = {}, specificChatTitle = null) {
     }
 }
 
-// ... (manter toggleFeature e waitForResponseCompletion)
+// Função para alternar funcionalidades (DeepThink/Search)
+async function toggleFeature(featureName, isActive) {
+    if (!page) return;
+    try {
+        // Tenta encontrar o botão ou checkbox correspondente
+        // Log "best effort" por enquanto para evitar crash
+        // console.log(\`Tentando ajustar \${featureName} para \${isActive}\`);
+
+        // Lógica de implementação futura: encontrar o botão pelo aria-label ou texto e clicar se o estado diferir
+        // Por ora, apenas evitamos o ReferenceError
+
+    } catch (error) {
+        console.warn(\`Erro ao alternar \${featureName}:\`, error);
+    }
+}
+
+async function waitForResponseCompletion() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let lastText = '';
+            let stableChecks = 0;
+            const maxStableChecks = 6; // ~3 segundos de estabilidade
+            const checkInterval = 500;
+            const timeout = 120000; // 2 minutos
+            let startTime = Date.now();
+
+            const interval = setInterval(async () => {
+                if (Date.now() - startTime > timeout) {
+                    clearInterval(interval);
+                    resolve(lastText || "Timeout aguardando resposta.");
+                    return;
+                }
+
+                try {
+                    // Seleciona todas as respostas do bot
+                    // DeepSeek costuma usar classes como .ds-markdown ou div que contém a resposta
+                    // Vamos pegar o último elemento de texto gerado
+                    const responses = await page.$$('.ds-markdown, .markdown-body'); 
+                    
+                    if (responses.length > 0) {
+                        const lastResponse = responses[responses.length - 1];
+                        const currentText = await page.evaluate(el => el.innerText, lastResponse);
+
+                        if (currentText && currentText.length > 0) {
+                            // Se o texto não mudou desde a última checagem
+                            if (currentText === lastText) {
+                                stableChecks++;
+                            } else {
+                                stableChecks = 0;
+                                lastText = currentText;
+                            }
+
+                            // Se estável e não parece estar "digitando" (cursor piscando seria outra coisa, mas texto estável é bom sinal)
+                            if (stableChecks >= maxStableChecks) {
+                                clearInterval(interval);
+                                resolve(currentText);
+                            }
+                        }
+                    }
+                } catch (err) {
+                    // Ignora erros transientes de seleção
+                }
+            }, checkInterval);
+
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
 
 async function startNewChat() {
     if (!page) throw new Error('Navegador não inicializado.');
