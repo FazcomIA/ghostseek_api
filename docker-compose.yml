@@ -9,7 +9,11 @@ services:
     volumes:
       - ./user_data_real:/app/user_data_real # Persistência
       - ./.env:/app/.env
+    platform: linux/amd64 # Força emulação x64 no Mac Silicon
+    shm_size: '2gb'       # Evita crashes de memória do Chrome
     environment:
       - HEADLESS=false
       - XVFB=true
+      - DISABLE_XVFB=true # Mantemos true pois o CMD do Dockerfile gerencia o Xvfb
+      # - PUPPETEER_EXECUTABLE_PATH (Removido para usar o Chrome instalado)
     restart: unless-stopped

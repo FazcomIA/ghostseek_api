@@ -12,10 +12,10 @@ async function initBrowser() {
     const userDataDir = path.join(process.cwd(), 'user_data_real');
 
     try {
-        const { browser: connectedBrowser, page: connectedPage } = await connect({
+        const connectOptions = {
             headless: false, // Recomendado false para melhor bypass
             turnstile: true, // Ativa bypass automático de Turnstile
-            disableXvfb: true, // Necessário true no macOS para evitar erros de conexão
+            disableXvfb: process.env.DISABLE_XVFB === 'true', // Configutável via ENV (True no Mac, False no Docker)
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -24,7 +24,14 @@ async function initBrowser() {
             connectOption: {
                 defaultViewport: null
             }
-        });
+        };
+
+        // if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        //     connectOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+        //     console.log('Usando executável customizado:', process.env.PUPPETEER_EXECUTABLE_PATH);
+        // }
+
+        const { browser: connectedBrowser, page: connectedPage } = await connect(connectOptions);
 
         browser = connectedBrowser;
         page = connectedPage;

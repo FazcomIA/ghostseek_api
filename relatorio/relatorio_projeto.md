@@ -71,6 +71,7 @@ A aplicação passou por uma refatoração recente e agora segue uma arquitetura
 O projeto está estável e funcional. A mudança para MVC facilita a adição de novos endpoints no futuro (como histórico de conversas ou múltiplos chats). A adição dos toggles torna a API equiparável à interface web em termos de recursos.
 
 ## Histórico de Commits
+- **ef4a51d** - 2026-01-13 03:05:54 - feat: migração para puppeteer-real-browser com suporte a docker e novas rotas de chat
 - **00ba7d4** - 2026-01-13 01:29:34 - Refactor: MVC structure, DeepThink/Search toggles, and response formatter
 - **2caf81d** - 2026-01-13 01:01:45 - Initial commit: working DeepSeek Puppeteer API with interactive chat
 
