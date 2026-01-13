@@ -4,7 +4,8 @@ async function testChat() {
     console.log('Testando endpoint /chat...');
     try {
         const response = await axios.post('http://localhost:3000/chat', {
-            prompt: 'Olá! Quanto é 2+2? Responda apenas com o número.'
+            prompt: 'qual jogo mais recente do bahia e quais os próximos desse mês?',
+            search: true
         });
 
         console.log('Resposta recebida:', response.data);

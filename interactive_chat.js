@@ -22,7 +22,9 @@ function askQuestion() {
             process.stdout.write('DeepSeek: (Pensando...)');
 
             const response = await axios.post('http://localhost:3000/chat', {
-                prompt: input
+                prompt: input,
+                search: false,
+                deepThink: false,
             });
 
             // Limpa a linha do "Thinking..."
