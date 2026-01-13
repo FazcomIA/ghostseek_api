@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: deepseek-api
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./user_data_real:/app/user_data_real # Persistência
+      - ./.env:/app/.env
+    environment:
+      - HEADLESS=false
+      - XVFB=true
+    restart: unless-stopped
