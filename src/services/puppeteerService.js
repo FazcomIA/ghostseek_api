@@ -165,13 +165,13 @@ async function toggleFeature(featureName, isActive) {
     try {
         // Tenta encontrar o botão ou checkbox correspondente
         // Log "best effort" por enquanto para evitar crash
-        // console.log(\`Tentando ajustar \${featureName} para \${isActive}\`);
+        // console.log(`Tentando ajustar ${featureName} para ${isActive}`);
 
         // Lógica de implementação futura: encontrar o botão pelo aria-label ou texto e clicar se o estado diferir
         // Por ora, apenas evitamos o ReferenceError
 
     } catch (error) {
-        console.warn(\`Erro ao alternar \${featureName}:\`, error);
+        console.warn(`Erro ao alternar ${featureName}:`, error);
     }
 }
 
@@ -196,8 +196,8 @@ async function waitForResponseCompletion() {
                     // Seleciona todas as respostas do bot
                     // DeepSeek costuma usar classes como .ds-markdown ou div que contém a resposta
                     // Vamos pegar o último elemento de texto gerado
-                    const responses = await page.$$('.ds-markdown, .markdown-body'); 
-                    
+                    const responses = await page.$$('.ds-markdown, .markdown-body');
+
                     if (responses.length > 0) {
                         const lastResponse = responses[responses.length - 1];
                         const currentText = await page.evaluate(el => el.innerText, lastResponse);
