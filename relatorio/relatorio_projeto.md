@@ -1,7 +1,7 @@
 # Relatório Técnico: Puppeteer DeepSeek API (Não-Oficial)
 
 **Data:** 13/01/2026
-**Versão:** 1.1.0
+**Versão:** 1.2.0
 
 ## Visão Geral
 Este projeto é uma API não-oficial que encapsula a interação com o chat web do DeepSeek (`chat.deepseek.com`) utilizando automação de navegador via **Puppeteer**. A API permite enviar mensagens programaticamente e receber respostas processadas, mantendo a sessão do usuário persistente.
@@ -35,6 +35,7 @@ A aplicação passou por uma refatoração recente e agora segue uma arquitetura
 3.  **Toggle de DeepThink e Search**: Capacidade de ativar ou desativar funcionalidades via API.
 4.  **Formatação de Resposta**: Higienização automática do texto retornado.
 5.  **Recuperação de Erros**: Sistema robusto de reconexão e login automático.
+6.  **Gerenciamento de Processos**: Encerramento gracioso e limpeza de processos zumbis para evitar ECONNREFUSED.
 
 ## Detalhes da API
 

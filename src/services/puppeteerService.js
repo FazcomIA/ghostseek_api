@@ -1,9 +1,11 @@
 const { connect } = require('puppeteer-real-browser');
 const path = require('path');
+const { exec } = require('child_process');
 require('dotenv').config();
 
 let browser;
 let page;
+let browserPid;
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -35,6 +37,15 @@ async function initBrowser() {
 
         browser = connectedBrowser;
         page = connectedPage;
+
+        // Tenta capturar o PID do processo principal do Chrome
+        const processObj = browser.process();
+        if (processObj) {
+            browserPid = processObj.pid;
+            console.log(`PID do navegador capturado: ${browserPid}`);
+        } else {
+            console.log('Não foi possível capturar o PID do navegador (provavelmente conectado via CDP).');
+        }
 
         await page.setViewport({ width: 1280, height: 800 });
 
@@ -280,4 +291,48 @@ async function getChatHistory() {
     }
 }
 
-module.exports = { initBrowser, sendMessage, startNewChat, getChatHistory };
+async function closeBrowser() {
+    console.log('Fechando navegador e encerrando processos...');
+
+    // Tenta fechar graciosamente primeiro
+    if (browser) {
+        try {
+            await browser.close();
+            await sleep(1000); // Dá um tempo para o processo morrer sozinho
+        } catch (e) {
+            console.error('Erro ao fechar navegador (browser.close):', e.message);
+        }
+    }
+
+    // 1. Tenta matar pelo PID se tivermos
+    if (browserPid) {
+        try {
+            console.log(`Tentando matar processo PID ${browserPid}...`);
+            process.kill(browserPid, 'SIGKILL');
+            console.log('Processo morto via PID.');
+        } catch (e) {
+            // Se der erro 'ESRCH', o processo já não existe, o que é bom
+            if (e.code !== 'ESRCH') console.error('Erro ao matar via PID:', e.message);
+        }
+    }
+
+    // 2. Fallback: varredura no sistema (garantia final)
+    // Usa ps auxww para garantir que vemos todos os argumentos e grep de forma robusta
+    console.log('Executando varredura de limpeza final...');
+    const killCmd = process.platform === 'win32'
+        ? `wmic process where "CommandLine like '%user_data_real%'" call terminate`
+        : `ps auxww | grep "user_data_real" | grep -v grep | awk '{print $2}' | xargs kill -9`;
+
+    return new Promise((resolve) => {
+        exec(killCmd, (err, stdout, stderr) => {
+            // Ignora erro do kill se não tiver nada pra matar
+            if (stdout) console.log('Limpeza de sistema executada.');
+            browser = null;
+            page = null;
+            browserPid = null;
+            resolve();
+        });
+    });
+}
+
+module.exports = { initBrowser, sendMessage, startNewChat, getChatHistory, closeBrowser };
